@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chrona - Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Premium additions for full page layout dashboard */
+    .dashboard-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 32px;
+    }
+    .panel-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+    .panel-full {
+      width: 100%;
+    }
+    .interactive-card {
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-normal);
+      padding: 24px;
+      box-shadow: var(--shadow-low);
+      transition: var(--spring-transition);
+    }
+    .interactive-card:hover {
+      box-shadow: var(--shadow-high);
+    }
+    .card-header-with-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .settings-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .settings-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .settings-item label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .category-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 16px;
+      justify-content: center;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .legend-color {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .table-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .settings-section-title {
+      font-size: 15px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    .alert-success {
+      background-color: var(--shading-alpha);
+      border: 1px solid var(--accent-teal);
+      color: var(--accent-teal);
+      padding: 10px 14px;
+      border-radius: var(--radius-small);
+      font-size: 13px;
+      display: none;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    <!-- Top Header -->
+    <header class="header-bar">
+      <div class="logo-group">
+        <span id="header-pulsing-dot" class="logo-dot pulsing"></span>
+        <h1>Chrona</h1>
+        <span class="text-muted" style="font-size: 14px; font-weight: 400;">/ Reflection Dashboard</span>
+      </div>
+
+      <div class="header-right">
+        <span id="header-tracking-status" class="status-text monospace" style="font-size: 12px;">tracking active</span>
+        <div class="pill-toggle">
+          <button id="btn-toggle-tracking" class="active">Active</button>
+          <button id="btn-toggle-paused">Paused</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Top Grid Cards -->
+    <section class="grid-3">
+      <!-- Card 1: Today Active -->
+      <div class="interactive-card">
+        <div class="metric-label">Total Active Today</div>
+        <div id="stat-total-today" class="metric-value">00h 00m</div>
+        <div id="stat-today-sub" class="metric-subtext">Calculating real-time...</div>
+      </div>
+
+      <!-- Card 2: Current Focus Domain -->
+      <div class="interactive-card">
+        <div class="metric-label">Active Focus Website</div>
+        <div id="stat-focus-domain" class="metric-value" style="font-size: 24px; word-break: break-all; min-height: 44px; display: flex; align-items: center;">none</div>
+        <div id="stat-focus-sub" class="metric-subtext">Active tab focus status</div>
+      </div>
+
+      <!-- Card 3: Top Category -->
+      <div class="interactive-card">
+        <div class="metric-label">Primary Attention Split</div>
+        <div id="stat-top-category" class="metric-value" style="font-size: 24px;">Productivity</div>
+        <div id="stat-category-sub" class="metric-subtext">Top sector by duration</div>
+      </div>
+    </section>
+
+    <!-- Mid Section Charts -->
+    <section class="panel-row">
+      <!-- Weekly attention bar timeline -->
+      <div class="interactive-card">
+        <div class="card-header-with-actions">
+          <h2>Weekly Attention Distribution</h2>
+          <span class="text-muted" style="font-size: 12px;">Active hours past 7 days</span>
+        </div>
+        <div class="timeline-bar-group" id="weekly-timeline-group">
+          <!-- Populated dynamically via JS -->
+          <div class="timeline-bar-col">
+            <div class="timeline-bar-wrapper"><div class="timeline-bar-fill" style="height: 0%;"></div></div>
+            <span class="timeline-bar-label">Mon</span>
+          </div>
+          <div class="timeline-bar-col">
+            <div class="timeline-bar-wrapper"><div class="timeline-bar-fill" style="height: 0%;"></div></div>
+            <span class="timeline-bar-label">Tue</span>
+          </div>
+          <div class="timeline-bar-col">
+            <div class="timeline-bar-wrapper"><div class="timeline-bar-fill" style="height: 0%;"></div></div>
+            <span class="timeline-bar-label">Wed</span>
+          </div>
+          <div class="timeline-bar-col">
+            <div class="timeline-bar-wrapper"><div class="timeline-bar-fill" style="height: 0%;"></div></div>
+            <span class="timeline-bar-label">Thu</span>
+          </div>
+          <div class="timeline-bar-col">
+            <div class="timeline-bar-wrapper"><div class="timeline-bar-fill" style="height: 0%;"></div></div>
+            <span class="timeline-bar-label">Fri</span>
+          </div>
+          <div class="timeline-bar-col">
+            <div class="timeline-bar-wrapper"><div class="timeline-bar-fill" style="height: 0%;"></div></div>
+            <span class="timeline-bar-label">Sat</span>
+          </div>
+          <div class="timeline-bar-col">
+            <div class="timeline-bar-wrapper"><div class="timeline-bar-fill" style="height: 0%;"></div></div>
+            <span class="timeline-bar-label">Sun</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attention Split Pie/Donut Chart -->
+      <div class="interactive-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+        <h2>Category Mix</h2>
+        <div class="chart-container">
+          <svg class="donut-svg" width="160" height="160" viewBox="0 0 160 160">
+            <circle class="donut-hole" cx="80" cy="80" r="60"></circle>
+            <circle class="donut-ring" cx="80" cy="80" r="60" stroke-width="12"></circle>
+            <!-- Dynamic segments loaded in JS -->
+            <g id="donut-segments-group"></g>
+          </svg>
+          <div class="donut-center">
+            <span id="donut-total-text" class="monospace" style="font-size: 16px; font-weight: 600;">0h 0m</span>
+            <span class="text-muted" style="font-size: 10px; text-transform: uppercase;">Tracked</span>
+          </div>
+        </div>
+        <div class="category-legend">
+          <div class="legend-item"><span class="legend-color" style="background-color: var(--cat-productivity);"></span>Productivity</div>
+          <div class="legend-item"><span class="legend-color" style="background-color: var(--cat-education);"></span>Education</div>
+          <div class="legend-item"><span class="legend-color" style="background-color: var(--cat-entertainment);"></span>Entertainment</div>
+          <div class="legend-item"><span class="legend-color" style="background-color: var(--cat-uncategorized);"></span>Uncategorized</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom Website Explorer & Settings Row -->
+    <section class="panel-row">
+      <!-- Website List table panel -->
+      <div class="interactive-card">
+        <div class="card-header-with-actions" style="margin-bottom: 12px;">
+          <h2>Website Explorer</h2>
+          <span id="explorer-count" class="text-muted" style="font-size: 12px;">0 domains</span>
+        </div>
+
+        <div class="table-controls">
+          <input type="text" id="explorer-search" class="search-input" placeholder="Search domains...">
+          <select id="explorer-filter-category" class="category-dropdown" style="padding: 8px 12px;">
+            <option value="ALL">All Categories</option>
+            <option value="Productivity">Productivity</option>
+            <option value="Education">Education</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Uncategorized">Uncategorized</option>
+          </select>
+        </div>
+
+        <div class="data-table-wrapper" style="max-height: 300px; overflow-y: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Domain</th>
+                <th>Category</th>
+                <th style="text-align: right;">Time Spent</th>
+              </tr>
+            </thead>
+            <tbody id="explorer-table-body">
+              <tr>
+                <td colspan="3" class="text-muted" style="text-align: center; padding: 24px;">Loading web history...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Live Settings Adjustment panel -->
+      <div class="interactive-card" style="display: flex; flex-direction: column; justify-content: flex-start; gap: 8px;">
+        <h2>Chrona Settings</h2>
+        <div class="settings-grid" style="margin-top: 16px;">
+
+          <div class="settings-item">
+            <label for="input-idle-threshold">Background Idle Delay</label>
+            <select id="input-idle-threshold" class="search-input">
+              <option value="15">15 Seconds</option>
+              <option value="30">30 Seconds</option>
+              <option value="60" selected>60 Seconds (Default)</option>
+              <option value="120">2 Minutes</option>
+              <option value="300">5 Minutes</option>
+            </select>
+            <span class="text-muted" style="font-size: 11px;">Pauses tracking after mouse or keyboard inactivity.</span>
+          </div>
+
+          <div class="settings-item">
+            <label for="input-daily-goal">Daily Active Goal</label>
+            <select id="input-daily-goal" class="search-input">
+              <option value="7200">2 Hours</option>
+              <option value="10800">3 Hours</option>
+              <option value="14400">4 Hours</option>
+              <option value="18000">5 Hours</option>
+              <option value="28800">8 Hours</option>
+            </select>
+            <span class="text-muted" style="font-size: 11px;">Your voluntary daily intentional target.</span>
+          </div>
+
+          <div style="margin-top: 12px;">
+            <button id="btn-save-settings" class="btn-pause" style="background-color: var(--text-primary); color: var(--bg-primary); font-weight: 600; border-color: var(--text-primary);">Save Settings</button>
+            <div id="settings-alert" class="alert-success">Settings successfully updated.</div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="dashboard.js"></script>
+</body>
+</html>

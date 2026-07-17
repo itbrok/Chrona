@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Chrona</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      width: 320px;
+      height: 400px;
+      padding: 16px;
+      background-color: var(--bg-primary);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .popup-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .popup-logo h1 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .popup-logo .logo-dot {
+      width: 8px;
+      height: 8px;
+    }
+    .status-text {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .hero-metric {
+      text-align: center;
+      padding: 16px 0;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-normal);
+      margin-bottom: 12px;
+    }
+    .current-domain-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-family: var(--font-mono);
+      word-break: break-all;
+      padding: 0 12px;
+    }
+    .top-list-container {
+      margin-bottom: 12px;
+    }
+    .top-list-title {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .top-site-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .top-site-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+    .top-site-name {
+      font-family: var(--font-mono);
+      color: var(--text-primary);
+    }
+    .top-site-time {
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+    .top-site-bar {
+      background-color: var(--shading-alpha);
+      height: 4px;
+      border-radius: 50px;
+      width: 100%;
+      overflow: hidden;
+    }
+    .top-site-bar-fill {
+      background-color: var(--accent-teal);
+      height: 100%;
+      border-radius: 50px;
+      width: 0%;
+      transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .popup-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .btn-pause {
+      background-color: var(--shading-alpha);
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      padding: 8px;
+      border-radius: var(--radius-small);
+      font-weight: 500;
+      width: 100%;
+      font-size: 13px;
+    }
+    .btn-pause:hover {
+      background-color: var(--shading-alpha-hover);
+    }
+    .dashboard-link-container {
+      text-align: center;
+    }
+    .dashboard-link {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+    .dashboard-link:hover {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <div>
+    <!-- Header -->
+    <div class="popup-header">
+      <div class="popup-logo">
+        <span id="pulsing-dot" class="logo-dot pulsing"></span>
+        <h1>Chrona</h1>
+      </div>
+      <span id="tracking-status" class="status-text">tracking</span>
+    </div>
+
+    <!-- Main Hero Total Active Time -->
+    <div class="hero-metric">
+      <div class="metric-label">Today's Active Time</div>
+      <div id="total-time-today" class="metric-value">00h 00m</div>
+      <div id="active-site-text" class="current-domain-label">no active browser focus</div>
+    </div>
+
+    <!-- Top 3 Sites -->
+    <div class="top-list-container">
+      <div class="top-list-title">Top Websites Today</div>
+      <div id="top-sites-list">
+        <div class="text-muted" style="font-size: 12px; text-align: center; padding: 12px 0;">No active history recorded yet today.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls Footer -->
+  <div class="popup-footer">
+    <button id="btn-pause-tracking" class="btn-pause">Pause Tracking</button>
+    <div class="dashboard-link-container">
+      <a href="#" id="link-dashboard" class="dashboard-link">Open Dashboard ↗</a>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

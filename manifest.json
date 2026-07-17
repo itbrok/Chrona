@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "Chrona - Privacy-First Time Tracker",
+  "version": "1.0.0",
+  "description": "An elegant, privacy-first Chrome extension that automatically tracks how much time you spend on websites.",
+  "permissions": [
+    "tabs",
+    "idle",
+    "storage"
+  ],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "128": "icons/icon128.png"
+    }
+  },
+  "options_page": "dashboard.html",
+  "icons": {
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["onboarding.html"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

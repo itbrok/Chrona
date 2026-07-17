@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome to Chrona</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      background-color: var(--bg-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .onboarding-card {
+      max-width: 520px;
+      width: 100%;
+      background-color: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-normal);
+      padding: 40px;
+      box-shadow: var(--shadow-high);
+      text-align: center;
+      animation: slide-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @keyframes slide-up {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .welcome-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .welcome-logo h1 {
+      font-size: 28px;
+    }
+    .welcome-logo .logo-dot {
+      width: 14px;
+      height: 14px;
+    }
+    .privacy-badge {
+      background-color: var(--shading-alpha);
+      color: var(--accent-teal);
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      display: inline-block;
+      margin-bottom: 24px;
+    }
+    p.intro-text {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    .info-list {
+      text-align: left;
+      background-color: var(--shading-alpha);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-normal);
+      padding: 20px;
+      margin-bottom: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .info-item {
+      display: flex;
+      gap: 12px;
+    }
+    .info-item-icon {
+      color: var(--accent-teal);
+      font-weight: bold;
+    }
+    .info-item-text h4 {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .info-item-text p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .goal-select-group {
+      margin-bottom: 32px;
+      text-align: left;
+    }
+    .goal-select-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .btn-primary {
+      background-color: var(--text-primary);
+      color: var(--bg-primary);
+      border: 1px solid var(--text-primary);
+      padding: 12px 28px;
+      border-radius: var(--radius-small);
+      font-weight: 500;
+      width: 100%;
+      font-size: 15px;
+      transition: var(--spring-transition);
+    }
+    .btn-primary:hover {
+      background-color: var(--shading-alpha-hover);
+      color: var(--text-primary);
+      transform: translateY(-1px);
+    }
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="onboarding-card">
+    <div class="privacy-badge">100% Offline & Private</div>
+
+    <div class="welcome-logo">
+      <span class="logo-dot pulsing"></span>
+      <h1>Chrona</h1>
+    </div>
+
+    <p class="intro-text">
+      Chrona is a silent, beautiful companion designed to mirror your attention. It quietly reflects how you spend your time online so you can discover healthy focus habits.
+    </p>
+
+    <div class="info-list">
+      <div class="info-item">
+        <span class="info-item-icon">✓</span>
+        <div class="info-item-text">
+          <h4>Zero External Sync</h4>
+          <p>Every millisecond of tracked history remains entirely on your local machine. No logins, no tracking scripts, and no clouds.</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="info-item-icon">✓</span>
+        <div class="info-item-text">
+          <h4>Clean Data Principle</h4>
+          <p>We extract only the core website name (like <code>github.com</code>). Sub-pages, exact search queries, and passwords are never read.</p>
+        </div>
+      </div>
+      <div class="info-item">
+        <span class="info-item-icon">✓</span>
+        <div class="info-item-text">
+          <h4>Silent & Calm</h4>
+          <p>No arbitrary shaming scores, no modal blockades, and no continuous alerts. Chrona is silent until you open it.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="goal-select-group">
+      <label for="goal-select">Set your daily intentional target (optional)</label>
+      <select id="goal-select" class="search-input">
+        <option value="7200">2 Hours of Daily Browsing</option>
+        <option value="10800" selected>3 Hours of Daily Browsing (Recommended)</option>
+        <option value="14400">4 Hours of Daily Browsing</option>
+        <option value="18000">5 Hours of Daily Browsing</option>
+      </select>
+    </div>
+
+    <button id="btn-start" class="btn-primary">Enable Tracking</button>
+  </div>
+
+  <script src="onboarding.js"></script>
+</body>
+</html>
