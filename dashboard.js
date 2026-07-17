@@ -1,7 +1,80 @@
 /*
   CHRONA - DASHBOARD WORKSPACE CONTROLLER (dashboard.js)
-  Renders premium visual metrics, category distributions, searchable explorers, and handles settings.
+  Renders premium visual metrics, category distributions, searchable explorers with favicons, and handles settings.
 */
+
+// Self-mocking layer for offline static testing and Playwright verification
+if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+  window.chrome = {
+    runtime: {
+      sendMessage: (msg, cb) => {
+        if (msg.action === 'getState') {
+          cb({
+            active_domain: 'github.com',
+            start_timestamp: Date.now() - 45 * 60 * 1000,
+            is_paused: false,
+            pause_until: null,
+            idle_state: 'active'
+          });
+        } else if (msg.action === 'togglePause') {
+          cb({ success: true, is_paused: msg.isPaused, pause_until: null });
+        } else if (msg.action === 'settingsChanged') {
+          cb({ success: true });
+        }
+      }
+    },
+    storage: {
+      local: {
+        get: (keys, cb) => {
+          const mockData = {
+            'settings': {
+              idle_threshold_seconds: 60,
+              daily_goal_seconds: 10800,
+              category_overrides: {}
+            },
+            'domain_metadata': {
+              'github.com': { title: 'GitHub - Chrona Pull Request', favIconUrl: 'https://github.githubassets.com/favicons/favicon.svg' },
+              'youtube.com': { title: 'Lofi Girl - Chill Beats to Study/Relax', favIconUrl: 'https://www.youtube.com/s/desktop/99f1fa00/img/favicon_144x144.png' },
+              'wikipedia.org': { title: 'Cognitive Load Wikipedia Article', favIconUrl: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' }
+            }
+          };
+
+          // Generate mock entries for past 7 days
+          const last7Days = [];
+          for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            last7Days.push(d.toISOString().split('T')[0]);
+          }
+
+          // Provide distinct daily tracking values for each date
+          const mockDailySeconds = [2400, 7200, 5400, 9600, 11000, 3600, 8400];
+          last7Days.forEach((date, idx) => {
+            mockData[`day:${date}`] = {
+              total_seconds: mockDailySeconds[idx],
+              domains: {
+                'github.com': Math.round(mockDailySeconds[idx] * 0.5),
+                'wikipedia.org': Math.round(mockDailySeconds[idx] * 0.2),
+                'youtube.com': Math.round(mockDailySeconds[idx] * 0.3)
+              }
+            };
+          });
+
+          const result = {};
+          if (Array.isArray(keys)) {
+            keys.forEach(k => { result[k] = mockData[k]; });
+          } else {
+            result[keys] = mockData[keys];
+          }
+          cb(result);
+        },
+        set: (obj, cb) => {
+          if (cb) cb();
+        }
+      }
+    }
+  };
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   // UI Elements
@@ -203,7 +276,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const dayKeys = last7Days.map(date => `day:${date}`);
 
-      chrome.storage.local.get(dayKeys, (storageRes) => {
+      chrome.storage.local.get([...dayKeys, 'domain_metadata'], (storageRes) => {
+        const domainMetadata = storageRes.domain_metadata || {};
+
         // Today's Date String
         const todayStr = last7Days[6];
         const todayData = storageRes[`day:${todayStr}`] || { total_seconds: 0, domains: {} };
@@ -236,8 +311,10 @@ document.addEventListener('DOMContentLoaded', () => {
           statFocusDomain.textContent = 'Idle';
           statFocusSub.textContent = 'System has gone idle';
         } else if (systemState.active_domain) {
-          statFocusDomain.textContent = systemState.active_domain;
-          statFocusSub.textContent = 'Currently holding browser focus';
+          // Display page title from metadata if available
+          const meta = domainMetadata[systemState.active_domain] || {};
+          statFocusDomain.textContent = meta.title || systemState.active_domain;
+          statFocusSub.textContent = `Currently active: ${systemState.active_domain}`;
         } else {
           statFocusDomain.textContent = 'none';
           statFocusSub.textContent = 'No active window focus';
@@ -276,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         renderWeeklyTimeline(last7Days, storageRes, todayStr, currentSessionDelta);
 
         // Render Table Explorer with filters
-        renderTableExplorer(todayDomains);
+        renderTableExplorer(todayDomains, domainMetadata);
       });
     });
   }
@@ -369,7 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  function renderTableExplorer(todayDomains) {
+  function renderTableExplorer(todayDomains, domainMetadata) {
     const filterTerm = explorerSearch.value.toLowerCase().trim();
     const filterCat = explorerFilterCategory.value;
 
@@ -382,7 +459,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Apply Search and Category filter
     tableItems = tableItems.filter(item => {
-      const matchSearch = item.domain.toLowerCase().includes(filterTerm);
+      const meta = domainMetadata[item.domain] || {};
+      const displayTitle = meta.title || item.domain;
+
+      const matchSearch = item.domain.toLowerCase().includes(filterTerm) || displayTitle.toLowerCase().includes(filterTerm);
       const matchCat = filterCat === 'ALL' || item.category === filterCat;
       return matchSearch && matchCat;
     });
@@ -407,8 +487,55 @@ document.addEventListener('DOMContentLoaded', () => {
       const tr = document.createElement('tr');
 
       const tdDomain = document.createElement('td');
-      tdDomain.className = 'monospace';
-      tdDomain.textContent = item.domain;
+
+      // Horizontal group container for Icon + Text
+      const domainGroup = document.createElement('div');
+      domainGroup.style.display = 'flex';
+      domainGroup.style.alignItems = 'center';
+      domainGroup.style.gap = '8px';
+
+      const meta = domainMetadata[item.domain] || {};
+      const displayTitle = meta.title || item.domain;
+      const favIconUrl = meta.favIconUrl || null;
+
+      const img = document.createElement('img');
+      img.style.width = '16px';
+      img.style.height = '16px';
+      img.style.borderRadius = '3px';
+      img.style.flexShrink = '0';
+      img.style.objectFit = 'contain';
+
+      const fallbackDot = document.createElement('span');
+      fallbackDot.style.width = '16px';
+      fallbackDot.style.height = '16px';
+      fallbackDot.style.borderRadius = '50%';
+      fallbackDot.style.backgroundColor = 'var(--shading-alpha-hover)';
+      fallbackDot.style.display = 'inline-block';
+      fallbackDot.style.flexShrink = '0';
+
+      if (favIconUrl && !favIconUrl.startsWith('chrome://')) {
+        img.src = favIconUrl;
+        img.onerror = () => {
+          img.style.display = 'none';
+          fallbackDot.style.display = 'inline-block';
+        };
+        fallbackDot.style.display = 'none';
+        domainGroup.appendChild(img);
+        domainGroup.appendChild(fallbackDot);
+      } else {
+        domainGroup.appendChild(fallbackDot);
+      }
+
+      const textSpan = document.createElement('span');
+      textSpan.style.overflow = 'hidden';
+      textSpan.style.textOverflow = 'ellipsis';
+      textSpan.style.whiteSpace = 'nowrap';
+      textSpan.style.maxWidth = '360px';
+      textSpan.textContent = displayTitle;
+      textSpan.title = item.domain;
+
+      domainGroup.appendChild(textSpan);
+      tdDomain.appendChild(domainGroup);
 
       const tdCategory = document.createElement('td');
       const select = document.createElement('select');

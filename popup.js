@@ -1,7 +1,62 @@
 /*
   CHRONA - POPUP CONTROLLER (popup.js)
-  A sparse, responsive controller updating today's metrics, current site focus, and top 3 sites.
+  A sparse, responsive controller updating today's metrics, current site focus, and top 3 sites (titles + favicons).
 */
+
+// Self-mocking layer for offline static testing and Playwright verification
+if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
+  window.chrome = {
+    runtime: {
+      sendMessage: (msg, cb) => {
+        if (msg.action === 'getState') {
+          cb({
+            active_domain: 'github.com',
+            start_timestamp: Date.now() - 45 * 60 * 1000,
+            is_paused: false,
+            pause_until: null,
+            idle_state: 'active'
+          });
+        } else if (msg.action === 'togglePause') {
+          cb({ success: true, is_paused: msg.isPaused, pause_until: null });
+        }
+      },
+      openOptionsPage: () => {
+        window.open('dashboard.html');
+      }
+    },
+    storage: {
+      local: {
+        get: (keys, cb) => {
+          const mockData = {
+            'domain_metadata': {
+              'github.com': { title: 'GitHub - Chrona Pull Request', favIconUrl: 'https://github.githubassets.com/favicons/favicon.svg' },
+              'youtube.com': { title: 'Lofi Girl - Chill Beats to Study/Relax', favIconUrl: 'https://www.youtube.com/s/desktop/99f1fa00/img/favicon_144x144.png' },
+              'wikipedia.org': { title: 'Cognitive Load Wikipedia Article', favIconUrl: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' }
+            }
+          };
+
+          const todayKey = `day:${new Date().toISOString().split('T')[0]}`;
+          mockData[todayKey] = {
+            total_seconds: 7200,
+            domains: {
+              'github.com': 3600,
+              'youtube.com': 2400,
+              'wikipedia.org': 1200
+            }
+          };
+
+          const result = {};
+          if (Array.isArray(keys)) {
+            keys.forEach(k => { result[k] = mockData[k]; });
+          } else {
+            result[keys] = mockData[keys];
+          }
+          cb(result);
+        }
+      }
+    }
+  };
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   const pulsingDot = document.getElementById('pulsing-dot');
@@ -39,8 +94,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateUI() {
-    chrome.storage.local.get([getTodayKey()], (res) => {
+    chrome.storage.local.get([getTodayKey(), 'domain_metadata'], (res) => {
       const todayData = res[getTodayKey()] || { total_seconds: 0, domains: {} };
+      const domainMetadata = res.domain_metadata || {};
       let totalSeconds = todayData.total_seconds || 0;
 
       // Calculate current active session delta in real-time
@@ -89,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnPause.textContent = 'Pause Tracking';
       }
 
-      // 3. Process and display top 3 sites today
+      // 3. Process and display top 3 sites today (using Titles and Favicons)
       const domainMap = { ...todayData.domains };
       if (localState.active_domain && currentSessionDelta > 0 && !localState.is_paused) {
         domainMap[localState.active_domain] = (domainMap[localState.active_domain] || 0) + currentSessionDelta;
@@ -116,15 +172,53 @@ document.addEventListener('DOMContentLoaded', () => {
           const info = document.createElement('div');
           info.className = 'top-site-info';
 
+          // Left name group (Icon + Title)
+          const nameGroup = document.createElement('div');
+          nameGroup.className = 'top-site-name-group';
+
+          // Retrieve metadata
+          const meta = domainMetadata[item.domain] || {};
+          const displayTitle = meta.title || item.domain;
+          const favIconUrl = meta.favIconUrl || null;
+
+          // Favicon Image
+          const img = document.createElement('img');
+          img.className = 'top-site-favicon';
+
+          // Neutral fallback indicator
+          const fallbackDot = document.createElement('span');
+          fallbackDot.style.width = '14px';
+          fallbackDot.style.height = '14px';
+          fallbackDot.style.borderRadius = '50%';
+          fallbackDot.style.backgroundColor = 'var(--shading-alpha-hover)';
+          fallbackDot.style.display = 'inline-block';
+          fallbackDot.style.flexShrink = '0';
+
+          if (favIconUrl && !favIconUrl.startsWith('chrome://')) {
+            img.src = favIconUrl;
+            img.onerror = () => {
+              img.style.display = 'none';
+              fallbackDot.style.display = 'inline-block';
+            };
+            fallbackDot.style.display = 'none';
+            nameGroup.appendChild(img);
+            nameGroup.appendChild(fallbackDot);
+          } else {
+            nameGroup.appendChild(fallbackDot);
+          }
+
           const nameSpan = document.createElement('span');
           nameSpan.className = 'top-site-name';
-          nameSpan.textContent = item.domain;
+          nameSpan.textContent = displayTitle;
+          nameSpan.title = item.domain; // hover shows exact domain
+
+          nameGroup.appendChild(nameSpan);
 
           const timeSpan = document.createElement('span');
           timeSpan.className = 'top-site-time';
           timeSpan.textContent = formatDuration(item.seconds);
 
-          info.appendChild(nameSpan);
+          info.appendChild(nameGroup);
           info.appendChild(timeSpan);
 
           const bar = document.createElement('div');
@@ -156,7 +250,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Toggle Pause Event
   btnPause.addEventListener('click', () => {
     const isPaising = !localState.is_paused;
-    // For MVP simple pause, we pause for 30 minutes
     const durationMinutes = isPaising ? 30 : 0;
 
     chrome.runtime.sendMessage({

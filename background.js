@@ -98,7 +98,7 @@ function evaluateActiveTab() {
     const activeTab = window.tabs ? window.tabs.find(t => t.active) : null;
     if (activeTab && activeTab.url) {
       const domain = extractHostname(activeTab.url);
-      handleStateTransition(domain);
+      handleStateTransition(domain, activeTab.title, activeTab.favIconUrl);
     } else {
       handleStateTransition(null);
     }
@@ -106,7 +106,7 @@ function evaluateActiveTab() {
 }
 
 // Logic to handle state transition (domain focus changes, pause/resume, lock state)
-function handleStateTransition(newDomain) {
+function handleStateTransition(newDomain, title = null, favIconUrl = null) {
   const now = Date.now();
 
   // Check pause expirations
@@ -133,16 +133,32 @@ function handleStateTransition(newDomain) {
     }
   }
 
-  // Update state with new target
+  // If we are about to track a new domain, let's save its tab title and favicon metadata if present
   if (shouldTrack) {
     state.active_domain = newDomain;
     state.start_timestamp = now;
+
+    if (title || favIconUrl) {
+      updateDomainMetadata(newDomain, title, favIconUrl);
+    }
   } else {
     state.active_domain = null;
     state.start_timestamp = 0;
   }
 
   persistLiveState();
+}
+
+// Store most recent tab metadata (title and favicon) for each domain
+function updateDomainMetadata(domain, title, favIconUrl) {
+  chrome.storage.local.get(['domain_metadata'], (res) => {
+    const metadata = res.domain_metadata || {};
+    metadata[domain] = {
+      title: title || (metadata[domain] ? metadata[domain].title : domain),
+      favIconUrl: favIconUrl || (metadata[domain] ? metadata[domain].favIconUrl : null)
+    };
+    chrome.storage.local.set({ domain_metadata: metadata });
+  });
 }
 
 // Save active session status to storage so it survives worker suspension

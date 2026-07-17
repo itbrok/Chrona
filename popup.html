@@ -74,16 +74,38 @@
     }
     .top-site-info {
       display: flex;
+      align-items: center;
       justify-content: space-between;
       font-size: 12px;
     }
+    .top-site-name-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      max-width: 220px;
+    }
+    .top-site-favicon {
+      width: 14px;
+      height: 14px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      object-fit: contain;
+    }
     .top-site-name {
-      font-family: var(--font-mono);
+      font-family: var(--font-sans);
       color: var(--text-primary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 500;
     }
     .top-site-time {
       font-family: var(--font-mono);
       color: var(--text-muted);
+      flex-shrink: 0;
     }
     .top-site-bar {
       background-color: var(--shading-alpha);
