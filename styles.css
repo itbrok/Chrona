@@ -7,6 +7,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
+  /* Inform Chrome of light mode rendering context for dropdown lists */
+  color-scheme: light;
+
   /* Design system custom variables (Light Theme Default) */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', SFMono-Regular, Consolas, "Liberation Mono", monospace;
@@ -40,6 +43,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Inform Chrome of dark mode rendering context for dropdown lists */
+    color-scheme: dark;
+
     --bg-primary: #09090B;
     --bg-secondary: #121214;
     --border-color: #27272A;
@@ -394,6 +400,13 @@ select.category-dropdown, select.search-input {
 select.category-dropdown:hover, select.search-input:hover {
   border-color: var(--accent-teal);
   background-color: var(--shading-alpha-hover);
+}
+
+/* Force styling and colors inside native option items for dark/light consistency */
+select option {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  font-family: var(--font-sans);
 }
 
 /* Input search elements */
