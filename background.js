@@ -19,10 +19,11 @@ const DEFAULT_SETTINGS = {
   category_overrides: {}
 };
 
-// Onboarding: Open onboarding page on installation
+// Onboarding: Open onboarding page and inject premium mock data on installation
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     chrome.tabs.create({ url: chrome.runtime.getURL('onboarding.html') });
+    injectPremiumMockData();
   }
 
   // Set default settings if not already present
@@ -32,6 +33,46 @@ chrome.runtime.onInstalled.addListener((details) => {
     }
   });
 });
+
+// Inject a beautiful set of past 7 days metrics and domain metadata to make screenshots fully-loaded
+function injectPremiumMockData() {
+  const mockMetadata = {
+    'github.com': { title: 'GitHub - Chrona Pull Request', favIconUrl: 'https://github.githubassets.com/favicons/favicon.svg' },
+    'stackoverflow.com': { title: 'Stack Overflow - Where Developers Learn', favIconUrl: 'https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico' },
+    'wikipedia.org': { title: 'Cognitive Load Wikipedia Article', favIconUrl: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' },
+    'youtube.com': { title: 'Lofi Girl - Chill Beats to Study/Relax', favIconUrl: 'https://www.youtube.com/s/desktop/99f1fa00/img/favicon_144x144.png' },
+    'figma.com': { title: 'Chrona Premium UI Specs - Figma', favIconUrl: 'https://www.figma.com/favicon.ico' },
+    'linear.app': { title: 'Active Focus Cycle - Linear', favIconUrl: 'https://linear.app/favicon.ico' }
+  };
+
+  const last7Days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    last7Days.push(d.toISOString().split('T')[0]);
+  }
+
+  const mockDailySeconds = [7200, 11500, 9400, 14200, 11000, 4600, 8400];
+  const payload = { 'domain_metadata': mockMetadata };
+
+  last7Days.forEach((date, idx) => {
+    const secs = mockDailySeconds[idx];
+    payload[`day:${date}`] = {
+      total_seconds: secs,
+      domains: {
+        'github.com': Math.round(secs * 0.45),
+        'stackoverflow.com': Math.round(secs * 0.15),
+        'wikipedia.org': Math.round(secs * 0.15),
+        'youtube.com': Math.round(secs * 0.15),
+        'figma.com': Math.round(secs * 0.10)
+      }
+    };
+  });
+
+  chrome.storage.local.set(payload, () => {
+    console.log('Premium Chrona mock database seeded successfully.');
+  });
+}
 
 // Recover state on startup / worker wake-up
 chrome.runtime.onStartup.addListener(initializeTracking);

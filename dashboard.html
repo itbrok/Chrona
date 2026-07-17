@@ -249,40 +249,56 @@
         </div>
       </div>
 
-      <!-- Live Settings Adjustment panel -->
-      <div class="interactive-card" style="display: flex; flex-direction: column; justify-content: flex-start; gap: 8px;">
-        <h2>Chrona Settings</h2>
-        <div class="settings-grid" style="margin-top: 16px;">
+      <!-- Right Column: Settings + Patreon Card -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+        <!-- Settings Card -->
+        <div class="interactive-card" style="display: flex; flex-direction: column; justify-content: flex-start; gap: 8px;">
+          <h2>Chrona Settings</h2>
+          <div class="settings-grid" style="margin-top: 16px;">
 
-          <div class="settings-item">
-            <label for="input-idle-threshold">Background Idle Delay</label>
-            <select id="input-idle-threshold" class="search-input">
-              <option value="15">15 Seconds</option>
-              <option value="30">30 Seconds</option>
-              <option value="60" selected>60 Seconds (Default)</option>
-              <option value="120">2 Minutes</option>
-              <option value="300">5 Minutes</option>
-            </select>
-            <span class="text-muted" style="font-size: 11px;">Pauses tracking after mouse or keyboard inactivity.</span>
+            <div class="settings-item">
+              <label for="input-idle-threshold">Background Idle Delay</label>
+              <select id="input-idle-threshold" class="search-input">
+                <option value="15">15 Seconds</option>
+                <option value="30">30 Seconds</option>
+                <option value="60" selected>60 Seconds (Default)</option>
+                <option value="120">2 Minutes</option>
+                <option value="300">5 Minutes</option>
+              </select>
+              <span class="text-muted" style="font-size: 11px;">Pauses tracking after mouse or keyboard inactivity.</span>
+            </div>
+
+            <div class="settings-item">
+              <label for="input-daily-goal">Daily Active Goal</label>
+              <select id="input-daily-goal" class="search-input">
+                <option value="7200">2 Hours</option>
+                <option value="10800">3 Hours</option>
+                <option value="14400">4 Hours</option>
+                <option value="18000">5 Hours</option>
+                <option value="28800">8 Hours</option>
+              </select>
+              <span class="text-muted" style="font-size: 11px;">Your voluntary daily intentional target.</span>
+            </div>
+
+            <div style="margin-top: 12px;">
+              <button id="btn-save-settings" class="btn-pause" style="background-color: var(--text-primary); color: var(--bg-primary); font-weight: 600; border-color: var(--text-primary);">Save Settings</button>
+              <div id="settings-alert" class="alert-success">Settings successfully updated.</div>
+            </div>
+
           </div>
+        </div>
 
-          <div class="settings-item">
-            <label for="input-daily-goal">Daily Active Goal</label>
-            <select id="input-daily-goal" class="search-input">
-              <option value="7200">2 Hours</option>
-              <option value="10800">3 Hours</option>
-              <option value="14400">4 Hours</option>
-              <option value="18000">5 Hours</option>
-              <option value="28800">8 Hours</option>
-            </select>
-            <span class="text-muted" style="font-size: 11px;">Your voluntary daily intentional target.</span>
-          </div>
-
-          <div style="margin-top: 12px;">
-            <button id="btn-save-settings" class="btn-pause" style="background-color: var(--text-primary); color: var(--bg-primary); font-weight: 600; border-color: var(--text-primary);">Save Settings</button>
-            <div id="settings-alert" class="alert-success">Settings successfully updated.</div>
-          </div>
-
+        <!-- Support Card -->
+        <div class="interactive-card" style="display: flex; flex-direction: column; justify-content: flex-start; gap: 8px; border-color: var(--accent-teal); background-color: var(--shading-alpha);">
+          <h2 style="color: var(--accent-teal); display: flex; align-items: center; gap: 6px; font-size: 15px; margin-bottom: 4px;">
+            <span>♥</span> Support Chrona
+          </h2>
+          <p class="text-muted" style="font-size: 12px; line-height: 1.5; margin-bottom: 12px;">
+            Chrona is 100% private and offline. If it helps you understand or protect your attention, please consider supporting on Patreon!
+          </p>
+          <a href="https://www.patreon.com/c/itbrok" target="_blank" class="btn-pause" style="text-align: center; text-decoration: none; background-color: var(--accent-teal); color: #FFFFFF; font-weight: 600; border-color: var(--accent-teal); display: block;">
+            Support on Patreon ↗
+          </a>
         </div>
       </div>
     </section>
