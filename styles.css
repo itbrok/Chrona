@@ -368,18 +368,36 @@ h2 {
   background-color: var(--shading-alpha);
 }
 
-/* Dropdown styling */
-.category-dropdown {
+/* Custom Dropdown styling (replaces native OS select styles) */
+select.category-dropdown, select.search-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* Beautiful custom neutral chevron-down SVG arrow */
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236B7280'%3E%3Cpath fill-rule='evenodd' d='M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 14px;
+  padding-right: 32px !important;
+  cursor: pointer;
+
   background-color: var(--shading-alpha);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-small);
-  padding: 4px 8px;
+  padding: 6px 12px;
   color: var(--text-primary);
   font-weight: 500;
+  transition: var(--spring-transition);
+}
+
+select.category-dropdown:hover, select.search-input:hover {
+  border-color: var(--accent-teal);
+  background-color: var(--shading-alpha-hover);
 }
 
 /* Input search elements */
-.search-input {
+input.search-input {
   background-color: var(--shading-alpha);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-small);
@@ -388,7 +406,7 @@ h2 {
   width: 100%;
 }
 
-.search-input:focus {
+input.search-input:focus {
   border-color: var(--accent-teal);
   box-shadow: 0 0 0 2px var(--shading-alpha-hover);
 }
