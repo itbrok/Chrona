@@ -6,7 +6,8 @@
   "permissions": [
     "tabs",
     "idle",
-    "storage"
+    "storage",
+    "alarms"
   ],
   "background": {
     "service_worker": "background.js",
