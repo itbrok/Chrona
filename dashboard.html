@@ -222,13 +222,19 @@
 
         <div class="table-controls">
           <input type="text" id="explorer-search" class="search-input" placeholder="Search domains...">
-          <select id="explorer-filter-category" class="category-dropdown" style="padding: 8px 12px;">
-            <option value="ALL">All Categories</option>
-            <option value="Productivity">Productivity</option>
-            <option value="Education">Education</option>
-            <option value="Entertainment">Entertainment</option>
-            <option value="Uncategorized">Uncategorized</option>
-          </select>
+          <div class="chrona-dropdown" id="dropdown-explorer-filter">
+            <div class="chrona-dropdown-toggle" id="btn-explorer-filter">
+              <span>All Categories</span>
+              <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.7;"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+            </div>
+            <div class="chrona-dropdown-menu" id="menu-explorer-filter">
+              <div class="chrona-dropdown-item selected" data-value="ALL">All Categories</div>
+              <div class="chrona-dropdown-item" data-value="Productivity">Productivity</div>
+              <div class="chrona-dropdown-item" data-value="Education">Education</div>
+              <div class="chrona-dropdown-item" data-value="Entertainment">Entertainment</div>
+              <div class="chrona-dropdown-item" data-value="Uncategorized">Uncategorized</div>
+            </div>
+          </div>
         </div>
 
         <div class="data-table-wrapper" style="max-height: 300px; overflow-y: auto;">
@@ -257,31 +263,44 @@
           <div class="settings-grid" style="margin-top: 16px;">
 
             <div class="settings-item">
-              <label for="input-idle-threshold">Background Idle Delay</label>
-              <select id="input-idle-threshold" class="search-input">
-                <option value="15">15 Seconds</option>
-                <option value="30">30 Seconds</option>
-                <option value="60" selected>60 Seconds (Default)</option>
-                <option value="120">2 Minutes</option>
-                <option value="300">5 Minutes</option>
-              </select>
+              <label>Background Idle Delay</label>
+              <div class="chrona-dropdown" id="dropdown-idle-threshold" style="width: 100%;">
+                <div class="chrona-dropdown-toggle" id="btn-idle-threshold" style="width: 100%;">
+                  <span>60 Seconds (Default)</span>
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.7;"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="chrona-dropdown-menu" id="menu-idle-threshold" style="width: 100%;">
+                  <div class="chrona-dropdown-item" data-value="15">15 Seconds</div>
+                  <div class="chrona-dropdown-item" data-value="30">30 Seconds</div>
+                  <div class="chrona-dropdown-item selected" data-value="60">60 Seconds (Default)</div>
+                  <div class="chrona-dropdown-item" data-value="120">2 Minutes</div>
+                  <div class="chrona-dropdown-item" data-value="300">5 Minutes</div>
+                </div>
+              </div>
               <span class="text-muted" style="font-size: 11px;">Pauses tracking after mouse or keyboard inactivity.</span>
             </div>
 
             <div class="settings-item">
-              <label for="input-daily-goal">Daily Active Goal</label>
-              <select id="input-daily-goal" class="search-input">
-                <option value="7200">2 Hours</option>
-                <option value="10800">3 Hours</option>
-                <option value="14400">4 Hours</option>
-                <option value="18000">5 Hours</option>
-                <option value="28800">8 Hours</option>
-              </select>
+              <label>Daily Active Goal</label>
+              <div class="chrona-dropdown" id="dropdown-daily-goal" style="width: 100%;">
+                <div class="chrona-dropdown-toggle" id="btn-daily-goal" style="width: 100%;">
+                  <span>3 Hours</span>
+                  <svg width="12" height="12" viewBox="0 0 20 20" fill="currentColor" style="opacity: 0.7;"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd"/></svg>
+                </div>
+                <div class="chrona-dropdown-menu" id="menu-daily-goal" style="width: 100%;">
+                  <div class="chrona-dropdown-item" data-value="7200">2 Hours</div>
+                  <div class="chrona-dropdown-item selected" data-value="10800">3 Hours</div>
+                  <div class="chrona-dropdown-item" data-value="14400">4 Hours</div>
+                  <div class="chrona-dropdown-item" data-value="18000">5 Hours</div>
+                  <div class="chrona-dropdown-item" data-value="28800">8 Hours</div>
+                </div>
+              </div>
               <span class="text-muted" style="font-size: 11px;">Your voluntary daily intentional target.</span>
             </div>
 
-            <div style="margin-top: 12px;">
-              <button id="btn-save-settings" class="btn-pause" style="background-color: var(--text-primary); color: var(--bg-primary); font-weight: 600; border-color: var(--text-primary);">Save Settings</button>
+            <div style="margin-top: 12px; display: flex; flex-direction: column; gap: 8px;">
+              <button id="btn-save-settings" class="btn-pause" style="background-color: var(--text-primary); color: var(--bg-primary); font-weight: 600; border-color: var(--text-primary); cursor: pointer; width: 100%; border-radius: var(--radius-small); padding: 8px 12px; border: 1px solid var(--text-primary); font-family: var(--font-sans);">Save Settings</button>
+              <button id="btn-seed-demo" class="btn-pause" style="background-color: var(--shading-alpha); color: var(--text-primary); font-weight: 600; border-color: var(--border-color); cursor: pointer; width: 100%; border-radius: var(--radius-small); padding: 8px 12px; border: 1px solid var(--border-color); font-family: var(--font-sans);">⚡ Seed Demo Data</button>
               <div id="settings-alert" class="alert-success">Settings successfully updated.</div>
             </div>
 

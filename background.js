@@ -80,7 +80,6 @@ function ensureInitialized() {
 chrome.runtime.onInstalled.addListener((details) => {
   if (details.reason === 'install') {
     chrome.tabs.create({ url: chrome.runtime.getURL('onboarding.html') });
-    injectPremiumMockData();
   }
 
   chrome.storage.local.get(['settings'], (res) => {
@@ -90,50 +89,6 @@ chrome.runtime.onInstalled.addListener((details) => {
     }
   });
 });
-
-// Seed mock data for high-fidelity presentation screenshots
-function injectPremiumMockData() {
-  const mockMetadata = {
-    'github.com': { title: 'GitHub - Chrona Pull Request', favIconUrl: 'https://github.githubassets.com/favicons/favicon.svg' },
-    'stackoverflow.com': { title: 'Stack Overflow - Where Developers Learn', favIconUrl: 'https://cdn.sstatic.net/Sites/stackoverflow/Img/favicon.ico' },
-    'wikipedia.org': { title: 'Cognitive Load Wikipedia Article', favIconUrl: 'https://en.wikipedia.org/static/favicon/wikipedia.ico' },
-    'youtube.com': { title: 'Lofi Girl - Chill Beats to Study/Relax', favIconUrl: 'https://www.youtube.com/s/desktop/99f1fa00/img/favicon_144x144.png' },
-    'figma.com': { title: 'Chrona Premium UI Specs - Figma', favIconUrl: 'https://www.figma.com/favicon.ico' },
-    'linear.app': { title: 'Active Focus Cycle - Linear', favIconUrl: 'https://linear.app/favicon.ico' }
-  };
-
-  const last7Days = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    last7Days.push(d.toISOString().split('T')[0]);
-  }
-
-  const mockDailySeconds = [7200, 11500, 9400, 14200, 11000, 4600, 8400];
-  const payload = { 'domain_metadata': mockMetadata };
-
-  last7Days.forEach((date, idx) => {
-    const secs = mockDailySeconds[idx];
-    payload[`day:${date}`] = {
-      total_seconds: secs,
-      domains: {
-        'github.com': Math.round(secs * 0.45),
-        'stackoverflow.com': Math.round(secs * 0.15),
-        'wikipedia.org': Math.round(secs * 0.15),
-        'youtube.com': Math.round(secs * 0.15),
-        'figma.com': Math.round(secs * 0.10)
-      }
-    };
-  });
-
-  chrome.storage.local.set(payload, () => {
-    if (chrome.runtime.lastError) {
-      console.error('[Chrona] Error seeding mock data:', chrome.runtime.lastError);
-    } else {
-      console.log('[Chrona] Premium mock database seeded successfully.');
-    }
-  });
-}
 
 // Initial worker startup call
 chrome.runtime.onStartup.addListener(() => {
@@ -199,8 +154,8 @@ function handleStateTransition(newDomain, title = null, favIconUrl = null) {
   if (wasTracking) {
     const elapsedMs = now - state.start_timestamp;
 
-    // Capping safety: discard abnormally large blocks (e.g. system suspended without trigger)
-    if (elapsedMs > 0 && elapsedMs < 300000) {
+    // Avoid double logging: accumulate all elapsed seconds since session anchor
+    if (elapsedMs > 0) {
       const elapsedSec = Math.floor(elapsedMs / 1000);
       if (elapsedSec > 0) {
         accumulateTime(state.active_domain, elapsedSec);
