@@ -34,6 +34,7 @@ if (isOfflineMock) {
               daily_goal_seconds: 10800,
               category_overrides: {}
             },
+            'update_available': true,
             'domain_metadata': {
               'github.com': { title: 'GitHub - Chrona Pull Request', favIconUrl: 'https://github.githubassets.com/favicons/favicon.svg' },
               'youtube.com': { title: 'Lofi Girl - Chill Beats to Study/Relax', favIconUrl: 'https://www.youtube.com/s/desktop/99f1fa00/img/favicon_144x144.png' },
@@ -101,6 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const btnSaveSettings = document.getElementById('btn-save-settings');
   const settingsAlert = document.getElementById('settings-alert');
   const btnSeedDemo = document.getElementById('btn-seed-demo');
+  const bannerUpdateAvailable = document.getElementById('banner-update-available');
+
+  if (bannerUpdateAvailable) {
+    bannerUpdateAvailable.addEventListener('click', () => {
+      chrome.runtime.sendMessage({ action: 'triggerReloadUpdate' });
+    });
+  }
 
   // Pre-bundled core domain categorization lookup
   const BUNDLED_CATEGORIES = {
@@ -292,9 +300,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function loadDashboardMetrics() {
-    chrome.storage.local.get(['settings'], (settingsRes) => {
+    chrome.storage.local.get(['settings', 'update_available'], (settingsRes) => {
       if (settingsRes && settingsRes.settings) {
         globalSettings = { ...globalSettings, ...settingsRes.settings };
+      }
+
+      if (bannerUpdateAvailable) {
+        bannerUpdateAvailable.style.display = (settingsRes && settingsRes.update_available) ? 'block' : 'none';
       }
 
       // Update custom dropdown visualizations to match restored configs

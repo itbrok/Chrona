@@ -53,6 +53,13 @@ function ensureInitialized() {
           }
         });
 
+        // Setup periodic 6-hour alarm to trigger programmatical update checks
+        chrome.alarms.get('check_for_updates', (alarm) => {
+          if (!alarm) {
+            chrome.alarms.create('check_for_updates', { periodInMinutes: 360 });
+          }
+        });
+
         // 3. Restore last recorded active tracking session
         if (res && res.live_state) {
           const ls = res.live_state;
@@ -298,11 +305,42 @@ chrome.idle.onStateChanged.addListener((newIdleState) => {
   });
 });
 
-// 5. Periodic alarms for background persistence and flushing
+// 5. Periodic alarms for background persistence, flushing, and update checks
 chrome.alarms.onAlarm.addListener((alarm) => {
   if (alarm.name === 'flush_active_time') {
     ensureInitialized().then(flushActiveTime);
+  } else if (alarm.name === 'check_for_updates') {
+    ensureInitialized().then(checkForChromeStoreUpdates);
   }
+});
+
+// Programmatic update check against the Web Store
+function checkForChromeStoreUpdates() {
+  if (chrome.runtime && typeof chrome.runtime.requestUpdateCheck === 'function') {
+    chrome.runtime.requestUpdateCheck((status, details) => {
+      if (chrome.runtime.lastError) {
+        console.warn('[Chrona] Update check failed:', chrome.runtime.lastError);
+        return;
+      }
+      console.log('[Chrona] Update check completed with status:', status);
+      if (status === 'update_available' && details) {
+        chrome.storage.local.set({
+          update_available: true,
+          update_version: details.version || 'unknown'
+        });
+      }
+    });
+  }
+}
+
+// Listen for downloaded update packages downloaded silently by Chrome
+chrome.runtime.onUpdateAvailable.addListener((details) => {
+  chrome.storage.local.set({
+    update_available: true,
+    update_version: details.version || 'unknown'
+  }, () => {
+    console.log('[Chrona] Silent update received and ready:', details.version);
+  });
 });
 
 // 6. Runtime message controller
@@ -346,6 +384,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         evaluateActiveTab();
         sendResponse({ success: true });
       });
+    }
+
+    else if (message.action === 'triggerReloadUpdate') {
+      // Apply update immediately by reloading the extension context
+      chrome.runtime.reload();
+      sendResponse({ success: true });
     }
   });
 

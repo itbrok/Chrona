@@ -28,6 +28,7 @@ if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) {
       local: {
         get: (keys, cb) => {
           const mockData = {
+            'update_available': true,
             'domain_metadata': {
               'github.com': { title: 'GitHub - Chrona Pull Request', favIconUrl: 'https://github.githubassets.com/favicons/favicon.svg' },
               'youtube.com': { title: 'Lofi Girl - Chill Beats to Study/Relax', favIconUrl: 'https://www.youtube.com/s/desktop/99f1fa00/img/favicon_144x144.png' },
@@ -75,6 +76,16 @@ document.addEventListener('DOMContentLoaded', () => {
     idle_state: 'active'
   };
 
+  // Select Update Banner Element
+  const bannerUpdateAvailable = document.getElementById('banner-update-available');
+
+  // Trigger update application on banner click
+  if (bannerUpdateAvailable) {
+    bannerUpdateAvailable.addEventListener('click', () => {
+      chrome.runtime.sendMessage({ action: 'triggerReloadUpdate' });
+    });
+  }
+
   // Format seconds to text, e.g. "02h 14m" or "42s"
   function formatDuration(totalSeconds) {
     if (totalSeconds < 60) {
@@ -94,7 +105,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function updateUI() {
-    chrome.storage.local.get([getTodayKey(), 'domain_metadata'], (res) => {
+    chrome.storage.local.get([getTodayKey(), 'domain_metadata', 'update_available'], (res) => {
+      // Toggle update banner visibility based on storage flag
+      if (bannerUpdateAvailable) {
+        bannerUpdateAvailable.style.display = res.update_available ? 'block' : 'none';
+      }
+
       const todayData = res[getTodayKey()] || { total_seconds: 0, domains: {} };
       const domainMetadata = res.domain_metadata || {};
       let totalSeconds = todayData.total_seconds || 0;
